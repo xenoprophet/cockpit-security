@@ -6,7 +6,7 @@ const state = {
     firewallRules: {
         columns: [],
         rows: [],
-        emptyText: "暂无规则数据。",
+        emptyText: "No rule data.",
         page: 1,
         pageSize: 10,
     },
@@ -73,7 +73,7 @@ const SECURITY_LOG_DISPLAY_LIMIT = 10;
 const SECURITY_LOG_SOURCES = [
     {
         id: "all",
-        label: "全部服务",
+        label: "All services",
         units: ["ufw.service", "iptables.service", "ip6tables.service", "netfilter-persistent.service", "nftables.service", "fail2ban.service"],
         kernelScope: "firewall",
     },
@@ -104,8 +104,8 @@ const REQUIRED_TOOLS = {
         commands: ["ufw"],
         paths: ["/usr/sbin/ufw", "/sbin/ufw"],
         packages: ["ufw"],
-        installTitle: "安装 UFW",
-        installCopy: "需要安装 UFW 才能管理 UFW 防火墙规则。",
+        installTitle: "Install UFW",
+        installCopy: "UFW must be installed to manage UFW firewall rules.",
     },
     iptables: {
         id: "iptables",
@@ -115,8 +115,8 @@ const REQUIRED_TOOLS = {
         paths: ["/usr/sbin/iptables", "/sbin/iptables", "/usr/bin/iptables", "/usr/sbin/iptables-nft", "/usr/sbin/iptables-legacy"],
         packages: ["iptables"],
         packageCandidates: [["iptables"], ["iptables-nft"], ["iptables-services"]],
-        installTitle: "安装 iptables",
-        installCopy: "需要安装 iptables 才能管理 iptables INPUT 规则。",
+        installTitle: "Install iptables",
+        installCopy: "iptables must be installed to manage iptables INPUT rules.",
     },
     fail2ban: {
         id: "fail2ban",
@@ -126,8 +126,8 @@ const REQUIRED_TOOLS = {
         paths: ["/usr/bin/fail2ban-client", "/usr/sbin/fail2ban-client"],
         packages: ["fail2ban"],
         packageCandidates: [["fail2ban"], ["fail2ban-server"]],
-        installTitle: "安装 Fail2Ban",
-        installCopy: "需要安装 Fail2Ban 才能查看 jail 状态和管理封禁 IP。",
+        installTitle: "Install Fail2Ban",
+        installCopy: "Fail2Ban must be installed to view jail status and manage banned IPs.",
     },
 };
 
@@ -281,7 +281,7 @@ function renderSuperuserDialog() {
     if (!current.open)
         return;
 
-    title.textContent = "切换到管理员访问";
+    title.textContent = "Switch to administrative access";
 
     alert.hidden = !current.error;
     alert.textContent = current.error;
@@ -302,7 +302,7 @@ function renderSuperuserDialog() {
     message.textContent = current.message;
 
     promptField.hidden = !current.prompt;
-    promptLabel.textContent = current.prompt || "密码";
+    promptLabel.textContent = current.prompt || "Password";
     promptInput.type = current.echo ? "text" : "password";
     promptInput.value = current.value;
     promptInput.disabled = current.inProgress;
@@ -311,9 +311,9 @@ function renderSuperuserDialog() {
     cancel.disabled = current.inProgress;
 
     if (current.prompt)
-        submit.textContent = current.inProgress ? "验证中..." : "验证";
+        submit.textContent = current.inProgress ? "Authenticating..." : "Authenticate";
     else
-        submit.textContent = current.inProgress ? "验证中..." : "验证";
+        submit.textContent = current.inProgress ? "Authenticating..." : "Authenticate";
 
     window.setTimeout(() => {
         if (!state.superuserDialog.open)
@@ -364,12 +364,12 @@ async function invokeSuperuserStart(method) {
 
 async function startSuperuserAuthentication(method) {
     if (!state.superuserProxy?.valid || typeof state.superuserProxy.Start !== "function")
-        throw new Error("当前环境不支持从此页面直接开启管理员权限。");
+        throw new Error("This environment does not support enabling administrative access directly from this page.");
 
     const promptListener = (_event, message, prompt, value, _unused, echo, hintError) => {
         updateSuperuserDialog({
-            message: normalizePromptText(message, "请验证以获取管理员权限"),
-            prompt: normalizePromptText(prompt, "密码"),
+            message: normalizePromptText(message, "Authenticate to get administrative access"),
+            prompt: normalizePromptText(prompt, "Password"),
             value: String(unwrapVariant(value) || ""),
             echo: Boolean(unwrapVariant(echo)),
             inProgress: false,
@@ -381,7 +381,7 @@ async function startSuperuserAuthentication(method) {
 
     updateSuperuserDialog({
         open: true,
-        message: "请验证以获取管理员权限",
+        message: "Authenticate to get administrative access",
         prompt: "",
         value: "",
         echo: false,
@@ -406,7 +406,7 @@ async function startSuperuserAuthentication(method) {
                 inProgress: false,
                 prompt: "",
                 message: "",
-                error: normalizePromptText(message, "切换为管理员访问时出现问题"),
+                error: normalizePromptText(message, "There was a problem switching to administrative access"),
                 errorTone: "danger",
             });
         } else {
@@ -464,7 +464,7 @@ async function requestSuperuserAccess() {
     renderAccessState();
 
     if (!state.superuserProxy?.valid || typeof state.superuserProxy.Start !== "function") {
-        state.superuserError = " 当前环境不支持从此页面直接开启管理员权限。";
+        state.superuserError = " This environment does not support enabling administrative access directly from this page.";
         renderAccessState();
         return;
     }
@@ -474,7 +474,7 @@ async function requestSuperuserAccess() {
         open: true,
         methods,
         selectedMethod: getPreferredSuperuserMethod(methods),
-        message: methods.length > 1 ? "" : "请验证以获取管理员权限",
+        message: methods.length > 1 ? "" : "Authenticate to get administrative access",
         prompt: "",
         value: "",
         echo: false,
@@ -541,13 +541,13 @@ function renderAccessState() {
         panel.classList.remove("is-loading");
     if (spinner)
         spinner.hidden = true;
-    title.textContent = "需要管理员访问权限";
+    title.textContent = "Administrative access required";
     copy.textContent = state.superuserError
-        ? `配置防火墙、Fail2Ban 和查看安全日志需要管理员访问权限。${state.superuserError}`
-        : "配置防火墙、Fail2Ban 和查看安全日志需要管理员访问权限。";
+        ? `Administrative access is required to configure the firewall, manage Fail2Ban, and view security logs.${state.superuserError}`
+        : "Administrative access is required to configure the firewall, manage Fail2Ban, and view security logs.";
     action.hidden = false;
     action.disabled = false;
-    action.textContent = "开启管理员访问";
+    action.textContent = "Enable administrative access";
 }
 
 function handleSuperuserStateChange(nextAllowed) {
@@ -754,7 +754,7 @@ function watchPackageKitTransaction(transactionPath, signalHandlers, notifyHandl
 
     function onClose(_event, error) {
         if (signalHandlers.ErrorCode)
-            signalHandlers.ErrorCode("close", formatError(error) || "PackageKit 已断开连接。");
+            signalHandlers.ErrorCode("close", formatError(error) || "PackageKit disconnected.");
         if (signalHandlers.Finished)
             signalHandlers.Finished(PACKAGEKIT_ENUM.EXIT_CANCELLED);
     }
@@ -869,24 +869,24 @@ function packageKitCancellableTransaction(method, arglist, progressCallback, sig
 
 function packageProgressMessage(prefix, progress) {
     if (progress?.waiting)
-        return "正在等待其他软件管理操作完成";
+        return "Waiting for another software management operation to finish";
     if (!progress?.package)
         return prefix;
 
     if (progress.info === INSTALL_PROGRESS_TYPE.DOWNLOADING)
-        return `正在下载 ${progress.package}`;
+        return `Downloading ${progress.package}`;
     if (progress.info === INSTALL_PROGRESS_TYPE.REMOVING)
-        return `正在移除 ${progress.package}`;
+        return `Removing ${progress.package}`;
 
-    return `正在安装 ${progress.package}`;
+    return `Installing ${progress.package}`;
 }
 
 function formatInstallError(error) {
     const message = formatError(error);
     if (/ServiceUnknown|not-found|not supported|No package manager/i.test(message))
-        return "当前系统没有可用的软件管理服务，无法从此页面安装软件包。";
-    if (/immutable|read-only|只读|不可变/i.test(message))
-        return "当前系统不支持在不可变的 /usr 上安装附加软件包。";
+        return "No software management service is available on this system, so packages cannot be installed from this page.";
+    if (/immutable|read-only/i.test(message))
+        return "This system does not support installing additional packages on an immutable /usr.";
     return message;
 }
 
@@ -1233,7 +1233,7 @@ function formatError(error) {
     try {
         return JSON.stringify(error, null, 2);
     } catch (_error) {
-        return "命令执行失败，且无法解析错误对象。";
+        return "Command failed and the error object could not be parsed.";
     }
 }
 
@@ -1349,7 +1349,7 @@ function renderFirewallInstallState(missing) {
     if (!missing)
         return;
 
-    setBadge("firewall-status-pill", "未安装", "warning");
+    setBadge("firewall-status-pill", "Not installed", "warning");
     if (title)
         title.textContent = tool.installTitle;
     if (copy)
@@ -1370,7 +1370,7 @@ function renderFail2BanInstallState(missing) {
         installState.hidden = !missing;
 
     if (missing)
-        setBadge("fail2ban-service-pill", "未安装", "warning");
+        setBadge("fail2ban-service-pill", "Not installed", "warning");
 }
 
 function resetInstallDialog(options = {}) {
@@ -1438,7 +1438,7 @@ function renderInstallDialog() {
     if (!current.open)
         return;
 
-    title.textContent = "安装软件";
+    title.textContent = "Install software";
     alert.hidden = !current.error;
     alert.textContent = current.error;
     alert.classList.toggle("tone-danger", Boolean(current.error));
@@ -1448,15 +1448,15 @@ function renderInstallDialog() {
     const packageNames = (current.packageNames?.length ? current.packageNames : tool.packages).join(", ");
     const packageName = document.createElement("strong");
     packageName.textContent = packageNames;
-    text.append(packageName, " 将被安装。");
+    text.append(packageName, " will be installed.");
     body.append(text);
 
-    appendPackageList(body, "附加软件包：", current.data?.extra_names || []);
-    appendPackageList(body, "将被移除：", current.data?.remove_names || []);
+    appendPackageList(body, "Additional packages:", current.data?.extra_names || []);
+    appendPackageList(body, "Will be removed:", current.data?.remove_names || []);
 
     let footerText = current.progressMessage;
     if (!footerText && current.data?.download_size)
-        footerText = `总大小：${cockpit.format_bytes(current.data.download_size)}`;
+        footerText = `Total size: ${cockpit.format_bytes(current.data.download_size)}`;
 
     footerMessage.hidden = !footerText;
     footerMessage.replaceChildren();
@@ -1466,13 +1466,13 @@ function renderInstallDialog() {
             const spinner = document.createElement("span");
             spinner.className = "pf-v6-c-spinner pf-m-sm";
             spinner.setAttribute("role", "progressbar");
-            spinner.setAttribute("aria-label", "加载中");
+            spinner.setAttribute("aria-label", "Loading");
             footerMessage.append(spinner);
         }
     }
 
     submit.disabled = current.checking || current.busy || !current.data || Boolean(current.error && !current.data);
-    submit.textContent = current.busy ? "安装中..." : "安装";
+    submit.textContent = current.busy ? "Installing..." : "Install";
     cancel.disabled = false;
     close.disabled = false;
 }
@@ -1519,7 +1519,7 @@ async function openInstallDialog(toolId) {
         data: null,
         checking: true,
         busy: false,
-        progressMessage: "正在检查已安装的软件",
+        progressMessage: "Checking installed software",
         error: "",
         cancel: null,
     };
@@ -1529,7 +1529,7 @@ async function openInstallDialog(toolId) {
         const manager = await getPackageManager();
         const result = await resolveToolInstallPackages(manager, tool, progress => {
             updateInstallDialog({
-                progressMessage: progress?.waiting ? "正在等待其他软件管理操作完成" : "正在检查已安装的软件",
+                progressMessage: progress?.waiting ? "Waiting for another software management operation to finish" : "Checking installed software",
                 cancel: progress?.cancel || null,
             });
         });
@@ -1542,7 +1542,7 @@ async function openInstallDialog(toolId) {
             progressMessage: "",
             cancel: null,
             error: data.unavailable_names.length
-                ? `${data.unavailable_names[0]} 不在任何可用软件仓库中。`
+                ? `${data.unavailable_names[0]}  is not in any available software repository.`
                 : "",
         });
     } catch (error) {
@@ -1555,7 +1555,7 @@ async function openInstallDialog(toolId) {
             checking: false,
             progressMessage: "",
             cancel: null,
-            error: formatInstallError(error) || "无法使用系统软件管理服务。",
+            error: formatInstallError(error) || "Unable to use the system software management service.",
         });
     }
 }
@@ -1574,14 +1574,14 @@ async function handleInstallDialogSubmit() {
     updateInstallDialog({
         busy: true,
         error: "",
-        progressMessage: "正在安装软件包",
+        progressMessage: "Installing packages",
     });
 
     try {
         const manager = await getPackageManager();
         await manager.install_missing_packages(current.data, progress => {
             updateInstallDialog({
-                progressMessage: packageProgressMessage("正在安装软件包", progress),
+                progressMessage: packageProgressMessage("Installing packages", progress),
                 cancel: progress?.cancel || null,
             });
         });
@@ -1595,7 +1595,7 @@ async function handleInstallDialogSubmit() {
             busy: false,
             progressMessage: "",
             cancel: null,
-            error: formatInstallError(error) || "安装软件包失败。",
+            error: formatInstallError(error) || "Failed to install packages.",
         });
         return;
     }
@@ -1616,29 +1616,29 @@ function summarizeOutput(text, ok = true) {
         .filter(Boolean);
 
     if (!lines.length)
-        return ok ? "命令执行完成，没有额外输出。" : "命令执行失败。";
+        return ok ? "Command completed with no additional output." : "Command failed.";
 
     const combined = lines.join(" ");
     if (/permission denied to socket/i.test(combined))
-        return "需要管理员权限才能访问 Fail2Ban 套接字。";
+        return "Administrative access is required to access the Fail2Ban socket.";
 
     if (/you must be root/i.test(combined))
-        return "当前命令需要 root 权限。";
+        return "This command requires root privileges.";
 
     if (/not found|command not found|No such file/i.test(combined))
-        return "命令或对应组件不存在，请先确认目标主机已安装。";
+        return "The command or related component was not found. Make sure it is installed on the target host.";
 
     return lines[0];
 }
 
-function renderDetailList(id, items, emptyText = "暂无详情。") {
+function renderDetailList(id, items, emptyText = "No details.") {
     const list = document.getElementById(id);
     if (!list)
         return;
 
     list.replaceChildren();
 
-    const entries = items.length ? items : [["状态", emptyText]];
+    const entries = items.length ? items : [["Status", emptyText]];
     const fragment = document.createDocumentFragment();
 
     entries.forEach(([label, value]) => {
@@ -1690,7 +1690,7 @@ function renderTable(headId, bodyId, emptyId, columns, rows, emptyText) {
         const th = document.createElement("th");
         th.className = "pf-v6-c-table__th";
         th.scope = "col";
-        th.textContent = "操作";
+        th.textContent = "Actions";
         headRow.append(th);
     }
 
@@ -1732,13 +1732,13 @@ function renderTable(headId, bodyId, emptyId, columns, rows, emptyText) {
         if (hasActions) {
             const actionCell = document.createElement("td");
             actionCell.className = "pf-v6-c-table__td data-table__action";
-            actionCell.dataset.label = "操作";
+            actionCell.dataset.label = "Actions";
 
             if (row.delete) {
                 const button = document.createElement("button");
                 button.type = "button";
                 button.className = "pf-v6-c-button pf-m-link pf-m-inline data-table__delete";
-                button.textContent = row.delete.label || "删除";
+                button.textContent = row.delete.label || "Delete";
                 button.addEventListener("click", () => {
                     deleteFirewallRule(row.delete);
                 });
@@ -1765,7 +1765,7 @@ function updateFirewallRulePageOptions(totalPages) {
     for (let page = 1; page <= totalPages; page++) {
         const option = document.createElement("option");
         option.value = String(page);
-        option.label = `第 ${page} 页`;
+        option.label = `Page ${page}`;
         fragment.append(option);
     }
     options.replaceChildren(fragment);
@@ -1783,14 +1783,14 @@ function renderFirewallRulePagination(totalRows) {
 
     const totalPages = Math.max(1, Math.ceil(totalRows / state.firewallRules.pageSize));
     container.hidden = totalRows <= state.firewallRules.pageSize;
-    meta.textContent = `第 ${state.firewallRules.page} / ${totalPages} 页`;
+    meta.textContent = `Page ${state.firewallRules.page} / ${totalPages}`;
     prev.disabled = state.firewallRules.page <= 1;
     next.disabled = state.firewallRules.page >= totalPages;
     updateFirewallRulePageOptions(totalPages);
 
     if (jumpInput) {
         jumpInput.value = String(state.firewallRules.page);
-        jumpInput.setAttribute("aria-label", `跳转到页码，共 ${totalPages} 页`);
+        jumpInput.setAttribute("aria-label", `Go to page, total ${totalPages}`);
     }
 }
 
@@ -1832,7 +1832,7 @@ function renderMetricCards(id, metrics) {
         const label = document.createElement("span");
         label.textContent = "Jail";
         const value = document.createElement("strong");
-        value.textContent = "暂无数据";
+        value.textContent = "No data";
         card.append(label, value);
         container.append(card);
         return;
@@ -2011,7 +2011,7 @@ function formatJournalTimestamp(entry, options) {
     if (!Number.isFinite(timestamp))
         return "";
 
-    return new Date(timestamp / 1000).toLocaleString("zh-CN", options);
+    return new Date(timestamp / 1000).toLocaleString("en-US", options);
 }
 
 function formatJournalDay(entry) {
@@ -2034,7 +2034,7 @@ function getJournalIdentifier(entry) {
 }
 
 function getJournalMessage(entry) {
-    return String(entry.MESSAGE || "").trim() || "没有日志消息。";
+    return String(entry.MESSAGE || "").trim() || "No log message.";
 }
 
 function openJournalEntry(entry) {
@@ -2059,7 +2059,7 @@ function renderSecurityLogs(entries) {
     if (!entries.length) {
         const empty = document.createElement("div");
         empty.className = "empty-message";
-        empty.textContent = "没有安全日志。";
+        empty.textContent = "No security logs.";
         container.append(empty);
         return;
     }
@@ -2124,7 +2124,7 @@ function renderSecurityLogMessage(message) {
 async function refreshSecurityLogs() {
     if (state.refreshLocks.logs) {
         state.securityLogsRefreshPending = true;
-        renderSecurityLogMessage("正在加载安全日志...");
+        renderSecurityLogMessage("Loading security logs...");
         return state.refreshLocks.logs;
     }
 
@@ -2134,7 +2134,7 @@ async function refreshSecurityLogs() {
 
         const sourceId = state.securityLogSource;
         const source = getSecurityLogSource();
-        renderSecurityLogMessage("正在加载安全日志...");
+        renderSecurityLogMessage("Loading security logs...");
         const result = await capture(buildSecurityLogArgs(source));
         if (state.securityLogSource !== sourceId) {
             state.securityLogsRefreshPending = true;
@@ -2193,16 +2193,16 @@ function positionSecurityLogMenu() {
 function normalizeStatus(value) {
     const normalized = String(value || "").trim().toLowerCase();
     const mapping = {
-        active: "运行中",
-        inactive: "未运行",
-        running: "运行中",
-        failed: "失败",
-        enabled: "已启用",
-        disabled: "已禁用",
-        loaded: "已加载",
-        masked: "已屏蔽",
+        active: "Running",
+        inactive: "Not running",
+        running: "Running",
+        failed: "Failed",
+        enabled: "Enabled",
+        disabled: "Disabled",
+        loaded: "Loaded",
+        masked: "Masked",
     };
-    return mapping[normalized] || value || "未知";
+    return mapping[normalized] || value || "Unknown";
 }
 
 function normalizeWhitespace(value) {
@@ -2260,35 +2260,35 @@ function parseUfwStatus(numberedOutput, verboseOutput) {
 
     return {
         summary: isActive
-            ? `UFW 已启用，解析到 ${rules.length} 条规则。`
-            : "UFW 当前未启用。",
-        statusLabel: isActive ? "运行中" : normalizeStatus(status),
+            ? `UFW is enabled, parsed ${rules.length} rules.`
+            : "UFW is not currently enabled.",
+        statusLabel: isActive ? "Running" : normalizeStatus(status),
         tone: isActive ? "success" : "warning",
         ruleCount: String(rules.length),
-        policySummary: defaults ? `默认策略：${defaults}` : "未解析到默认策略。",
+        policySummary: defaults ? `Default policy: ${defaults}` : "No default policy was parsed.",
         details: [
-            ["状态", normalizeStatus(status)],
-            defaults ? ["默认策略", defaults] : null,
-            logging ? ["日志", logging] : null,
-            ["规则数", String(rules.length)],
+            ["Status", normalizeStatus(status)],
+            defaults ? ["Default policy", defaults] : null,
+            logging ? ["Logging", logging] : null,
+            ["Rule count", String(rules.length)],
         ].filter(Boolean),
-        columns: ["编号", "目标", "动作", "方向", "来源"],
+        columns: ["Number", "To", "Action", "Direction", "Source"],
         rows: rules.map(rule => ({
             cells: [rule.number, rule.to, rule.action, rule.direction, rule.from],
             delete: {
                 kind: "ufw",
                 value: rule.number,
-                label: "删除",
+                label: "Delete",
             },
         })),
-        emptyText: isActive ? "当前没有 UFW 规则。" : "UFW 未启用，暂无规则可显示。",
+        emptyText: isActive ? "There are no UFW rules." : "UFW is not enabled, so no rules can be displayed.",
     };
 }
 
 function parseIptablesStatus(listOutput) {
     const lines = String(listOutput || "").split(/\r?\n/);
     const chainLine = lines.find(line => /^Chain\s+INPUT/i.test(line));
-    const policy = chainLine?.match(/\(policy\s+([A-Z]+)/)?.[1] || "未知";
+    const policy = chainLine?.match(/\(policy\s+([A-Z]+)/)?.[1] || "Unknown";
     const rules = [];
     let tableStarted = false;
 
@@ -2326,17 +2326,17 @@ function parseIptablesStatus(listOutput) {
     });
 
     return {
-        summary: `INPUT 链默认策略为 ${policy}，解析到 ${rules.length} 条规则。`,
-        statusLabel: `策略 ${policy}`,
+        summary: `The INPUT chain default policy is ${policy}, parsed ${rules.length} rules.`,
+        statusLabel: `Policy ${policy}`,
         tone: policy === "DROP" ? "warning" : "success",
         ruleCount: String(rules.length),
-        policySummary: `默认策略：${policy}`,
+        policySummary: `Default policy: ${policy}`,
         details: [
-            ["链", "INPUT"],
-            ["默认策略", policy],
-            ["规则数", String(rules.length)],
+            ["Chain", "INPUT"],
+            ["Default policy", policy],
+            ["Rule count", String(rules.length)],
         ],
-        columns: ["行号", "目标", "协议", "来源", "目的地", "匹配"],
+        columns: ["Line", "To", "Protocol", "Source", "Destination", "Match"],
         rows: rules.map(rule => ({
             cells: [
                 rule.num,
@@ -2349,10 +2349,10 @@ function parseIptablesStatus(listOutput) {
             delete: {
                 kind: "iptables",
                 value: rule.num,
-                label: "删除",
+                label: "Delete",
             },
         })),
-        emptyText: "当前没有 iptables INPUT 规则。",
+        emptyText: "There are no iptables INPUT rules.",
     };
 }
 
@@ -2365,18 +2365,18 @@ function parseFail2BanOverview(serviceOutput, statusOutput, serviceOk, statusOk)
         ? jailListMatch[1].split(",").map(item => item.trim()).filter(Boolean)
         : [];
     const activeState = service.ActiveState || "";
-    const serviceState = activeState ? `${normalizeStatus(activeState)} / ${service.SubState || "unknown"}` : "未知";
+    const serviceState = activeState ? `${normalizeStatus(activeState)} / ${service.SubState || "unknown"}` : "Unknown";
 
-    let summary = "未拿到 Fail2Ban 状态。";
+    let summary = "No Fail2Ban status was returned.";
     let tone = "warning";
 
     if (serviceOk && statusOk) {
         summary = jails.length
-            ? `当前共有 ${jails.length} 个 jail：${jails.join("、")}。`
-            : "当前没有已启用的 jail。";
+            ? `There are ${jails.length} jails: ${jails.join(", ")}.`
+            : "There are no enabled jails.";
         tone = activeState === "active" ? "success" : "warning";
     } else if (/permission denied|must be root/i.test(statusOutput)) {
-        summary = "Fail2Ban 套接字需要管理员权限，当前会话未拿到。";
+        summary = "The Fail2Ban socket requires administrative access, which this session does not have.";
     } else if (!statusOk) {
         summary = summarizeOutput(statusOutput, false);
         tone = "danger";
@@ -2389,14 +2389,14 @@ function parseFail2BanOverview(serviceOutput, statusOutput, serviceOk, statusOk)
         summary,
         tone,
         details: [
-            ["服务", service.Id || "fail2ban.service"],
-            service.Description ? ["说明", service.Description] : null,
-            service.ActiveState ? ["运行状态", normalizeStatus(service.ActiveState)] : null,
-            service.SubState ? ["子状态", service.SubState] : null,
-            service.UnitFileState ? ["开机策略", normalizeStatus(service.UnitFileState)] : null,
-            service.LoadState ? ["加载状态", normalizeStatus(service.LoadState)] : null,
-            ["Jail 数量", String(jailCount)],
-            jails.length ? ["Jail 列表", jails.join("、")] : null,
+            ["Service", service.Id || "fail2ban.service"],
+            service.Description ? ["Description", service.Description] : null,
+            service.ActiveState ? ["Runtime state", normalizeStatus(service.ActiveState)] : null,
+            service.SubState ? ["Substate", service.SubState] : null,
+            service.UnitFileState ? ["Boot policy", normalizeStatus(service.UnitFileState)] : null,
+            service.LoadState ? ["Load state", normalizeStatus(service.LoadState)] : null,
+            ["Jail count", String(jailCount)],
+            jails.length ? ["Jail list", jails.join(", ")] : null,
         ].filter(Boolean),
     };
 }
@@ -2423,17 +2423,17 @@ function parseFail2BanJail(output, jailName) {
     return {
         name: output.match(/Status for the jail:\s*(.+)/i)?.[1]?.trim() || jailName,
         metrics: [
-            { label: "当前失败", value: detailMap["Currently failed"] || "0" },
-            { label: "当前封禁", value: detailMap["Currently banned"] || "0" },
-            { label: "累计封禁", value: detailMap["Total banned"] || "0" },
+            { label: "Currently failed", value: detailMap["Currently failed"] || "0" },
+            { label: "Currently banned", value: detailMap["Currently banned"] || "0" },
+            { label: "Total banned", value: detailMap["Total banned"] || "0" },
         ],
         details: [
-            ["累计失败", detailMap["Total failed"] || "0"],
-            detailMap["File list"] ? ["日志文件", detailMap["File list"]] : null,
-            detailMap["Banned IP list"] ? ["封禁 IP", detailMap["Banned IP list"]] : null,
+            ["Total failed", detailMap["Total failed"] || "0"],
+            detailMap["File list"] ? ["Log files", detailMap["File list"]] : null,
+            detailMap["Banned IP list"] ? ["Banned IPs", detailMap["Banned IP list"]] : null,
         ].filter(Boolean),
         bannedIps,
-        summary: `已加载 jail ${jailName}，当前封禁 ${detailMap["Currently banned"] || "0"} 个 IP。`,
+        summary: `Loaded jail ${jailName}, currently banned ${detailMap["Currently banned"] || "0"} IPs.`,
     };
 }
 
@@ -2443,7 +2443,7 @@ function renderFirewallStatus(parsed) {
     setText("firewall-summary-copy", parsed.summary);
     setText("firewall-policy-summary", parsed.policySummary);
     setBadge("firewall-status-pill", parsed.statusLabel, parsed.tone);
-    renderDetailList("firewall-details", parsed.details, "没有解析到防火墙详情。");
+    renderDetailList("firewall-details", parsed.details, "No firewall details could be parsed.");
     state.firewallRules.columns = parsed.columns;
     state.firewallRules.rows = parsed.rows;
     state.firewallRules.emptyText = parsed.emptyText;
@@ -2454,12 +2454,12 @@ function renderFirewallStatus(parsed) {
 function renderFirewallError(message) {
     renderFirewallInstallState(false);
     setText("firewall-summary-copy", summarizeOutput(message, false));
-    setText("firewall-policy-summary", "状态刷新失败。");
-    setBadge("firewall-status-pill", "刷新失败", "danger");
-    renderDetailList("firewall-details", [["错误", summarizeOutput(message, false)]], "状态刷新失败。");
-    state.firewallRules.columns = ["状态"];
+    setText("firewall-policy-summary", "Status refresh failed.");
+    setBadge("firewall-status-pill", "Refresh failed", "danger");
+    renderDetailList("firewall-details", [["Error", summarizeOutput(message, false)]], "Status refresh failed.");
+    state.firewallRules.columns = ["Status"];
     state.firewallRules.rows = [];
-    state.firewallRules.emptyText = "无法读取规则列表。";
+    state.firewallRules.emptyText = "Unable to read the rules list.";
     state.firewallRules.page = 1;
     renderFirewallRulesTable();
 }
@@ -2468,10 +2468,10 @@ function renderFirewallMissing() {
     const tool = getCurrentFirewallTool();
     renderFirewallInstallState(true);
     setText("firewall-backend-label", tool.label);
-    setText("firewall-policy-summary", `${tool.label} 未安装。`);
-    state.firewallRules.columns = ["状态"];
+    setText("firewall-policy-summary", `${tool.label} is not installed.`);
+    state.firewallRules.columns = ["Status"];
     state.firewallRules.rows = [];
-    state.firewallRules.emptyText = `${tool.label} 未安装。`;
+    state.firewallRules.emptyText = `${tool.label} is not installed.`;
     state.firewallRules.page = 1;
 }
 
@@ -2481,10 +2481,10 @@ function renderFail2BanStatus(parsed) {
     setText("fail2ban-service-copy", parsed.summary);
     setText("fail2ban-jail-count", String(parsed.jailCount));
     setBadge("fail2ban-service-pill", parsed.serviceState, parsed.tone);
-    renderDetailList("fail2ban-details", parsed.details, "没有解析到 Fail2Ban 总体状态。");
+    renderDetailList("fail2ban-details", parsed.details, "No Fail2Ban overview status could be parsed.");
     renderTokenRow("fail2ban-jail-list", parsed.jails, {
         clickable: true,
-        emptyText: "没有 jail",
+        emptyText: "No jails",
         onClick: jail => {
             fillJailInputs(jail);
             loadFail2BanJail(jail);
@@ -2494,10 +2494,10 @@ function renderFail2BanStatus(parsed) {
 
 function renderFail2BanMissing() {
     renderFail2BanInstallState(true);
-    setText("fail2ban-service-state", "未安装");
-    setText("fail2ban-service-copy", "Fail2Ban 未安装。");
+    setText("fail2ban-service-state", "Not installed");
+    setText("fail2ban-service-copy", "Fail2Ban is not installed.");
     setText("fail2ban-jail-count", "--");
-    clearFail2BanJail("Fail2Ban 未安装。");
+    clearFail2BanJail("Fail2Ban is not installed.");
 }
 
 function renderFail2BanJail(parsed, tone = "success") {
@@ -2506,22 +2506,22 @@ function renderFail2BanJail(parsed, tone = "success") {
     setText("fail2ban-current-jail-copy", parsed.summary);
     setBadge("fail2ban-jail-pill", parsed.name, tone);
     renderMetricCards("fail2ban-jail-metrics", parsed.metrics);
-    renderDetailList("fail2ban-jail-details", parsed.details, "没有解析到 jail 详情。");
+    renderDetailList("fail2ban-jail-details", parsed.details, "No jail details could be parsed.");
     renderTokenRow("fail2ban-banned-ips", parsed.bannedIps, {
-        emptyText: "当前没有封禁 IP",
+        emptyText: "There are no banned IPs",
     });
     fillJailInputs(parsed.name);
 }
 
 function clearFail2BanJail(message) {
     state.currentJail = "";
-    setText("fail2ban-current-jail", "未选择");
+    setText("fail2ban-current-jail", "Not selected");
     setText("fail2ban-current-jail-copy", message);
-    setBadge("fail2ban-jail-pill", "未选择");
+    setBadge("fail2ban-jail-pill", "Not selected");
     renderMetricCards("fail2ban-jail-metrics", []);
     renderDetailList("fail2ban-jail-details", [], message);
     renderTokenRow("fail2ban-banned-ips", [], {
-        emptyText: "当前没有封禁 IP",
+        emptyText: "There are no banned IPs",
     });
 }
 
@@ -2535,11 +2535,11 @@ async function execute(prefix, label, argsOrScript, options = {}) {
     const shouldUpdateResult = options.updateResult !== false;
 
     if (shouldUpdateResult)
-        showCommandResult(prefix, label, `执行中...\n\n${commandLabel}`, true, "正在执行命令...");
+        showCommandResult(prefix, label, `Running...\n\n${commandLabel}`, true, "Running command...");
 
     const result = await capture(argsOrScript, options);
     if (shouldUpdateResult) {
-        showCommandResult(prefix, result.ok ? label : `${label} 失败`, result.output, result.ok, options.summary);
+        showCommandResult(prefix, result.ok ? label : `${label} Failed`, result.output, result.ok, options.summary);
         refreshSecurityLogs();
     }
 
@@ -2558,8 +2558,8 @@ async function refreshFirewallStatus() {
         }
 
         renderFirewallInstallState(false);
-        setText("firewall-summary-copy", "正在刷新防火墙状态...");
-        setBadge("firewall-status-pill", "加载中", "loading");
+        setText("firewall-summary-copy", "Refreshing firewall status...");
+        setBadge("firewall-status-pill", "Loading", "loading");
 
         if (state.firewallBackend === "ufw") {
             const ufwCommand = getToolCommand("ufw");
@@ -2600,8 +2600,8 @@ async function refreshFail2BanStatus() {
         }
 
         renderFail2BanInstallState(false);
-        setText("fail2ban-service-copy", "正在刷新 Fail2Ban 状态...");
-        setBadge("fail2ban-service-pill", "加载中", "loading");
+        setText("fail2ban-service-copy", "Refreshing Fail2Ban status...");
+        setBadge("fail2ban-service-pill", "Loading", "loading");
 
         const serviceName = await resolveFail2BanService();
         const [serviceResult, statusResult] = await Promise.all([
@@ -2621,7 +2621,7 @@ async function refreshFail2BanStatus() {
             if (parsed.jails.includes(state.currentJail))
                 await loadFail2BanJail(state.currentJail, { quiet: true });
             else
-                clearFail2BanJail("当前 jail 已不在总列表中，请重新选择。");
+                clearFail2BanJail("The current jail is no longer in the list. Select another jail.");
         }
     });
 }
@@ -2632,27 +2632,27 @@ async function loadFail2BanJail(jail, options = {}) {
 
     const jailName = jail.trim();
     if (!jailName) {
-        showCommandResult("fail2ban", "jail 查询失败", "jail 名称不能为空。", false);
+        showCommandResult("fail2ban", "Jail query failed", "Jail name cannot be empty.", false);
         return;
     }
 
-    setBadge("fail2ban-jail-pill", "加载中", "loading");
+    setBadge("fail2ban-jail-pill", "Loading", "loading");
     setText("fail2ban-current-jail", jailName);
-    setText("fail2ban-current-jail-copy", "正在加载 jail 详情...");
+    setText("fail2ban-current-jail-copy", "Loading jail details...");
 
     const result = await capture([getToolCommand("fail2ban"), "status", jailName]);
     if (!result.ok) {
         const summary = summarizeOutput(result.output, false);
         setText("fail2ban-current-jail", jailName);
         setText("fail2ban-current-jail-copy", summary);
-        setBadge("fail2ban-jail-pill", "加载失败", "danger");
+        setBadge("fail2ban-jail-pill", "Load failed", "danger");
         renderMetricCards("fail2ban-jail-metrics", []);
-        renderDetailList("fail2ban-jail-details", [["错误", summary]], "jail 查询失败。");
+        renderDetailList("fail2ban-jail-details", [["Error", summary]], "Jail query failed.");
         renderTokenRow("fail2ban-banned-ips", [], {
-            emptyText: "当前没有封禁 IP",
+            emptyText: "There are no banned IPs",
         });
         if (!options.quiet)
-            showCommandResult("fail2ban", `jail: ${jailName} 失败`, result.output, false, summary);
+            showCommandResult("fail2ban", `jail: ${jailName} Failed`, result.output, false, summary);
         return;
     }
 
@@ -2707,7 +2707,7 @@ function updateFirewallActionBar() {
     setHidden("firewall-reload-button", !isUfw);
 
     if (addButton)
-        addButton.textContent = isUfw ? "添加规则" : "插入规则";
+        addButton.textContent = isUfw ? "Add rule" : "Insert rule";
 }
 
 function resetFirewallDialog() {
@@ -2773,24 +2773,24 @@ function renderFirewallDialog() {
 
     const isEnable = current.mode === "enable-ufw";
     title.textContent = isEnable
-        ? "启用 UFW"
+        ? "Enable UFW"
         : state.firewallBackend === "ufw"
-            ? "添加 UFW 规则"
-            : "插入 iptables 规则";
+            ? "Add UFW rule"
+            : "Insert iptables rule";
     copy.hidden = !isEnable;
     copy.textContent = isEnable
-        ? "这会立即启用 UFW 并应用当前规则。请先确认当前管理连接所需端口已经放行。"
+        ? "This will enable UFW immediately and apply the current rules. Make sure the port needed for your current management connection is allowed first."
         : "";
     form.hidden = isEnable;
     alert.hidden = !current.error;
     alert.textContent = current.error;
     submit.textContent = isEnable
-        ? (current.busy ? "启用中..." : "启用")
+        ? (current.busy ? "Enabling..." : "Enable")
         : current.busy
-            ? (state.firewallBackend === "ufw" ? "添加中..." : "插入中...")
+            ? (state.firewallBackend === "ufw" ? "Adding..." : "Inserting...")
             : state.firewallBackend === "ufw"
-                ? "添加"
-                : "插入";
+                ? "Add"
+                : "Insert";
     submit.disabled = current.busy;
     cancel.disabled = current.busy;
     close.disabled = current.busy;
@@ -2841,14 +2841,14 @@ async function deleteFirewallRule(rule) {
     if (!rule)
         return;
 
-    const label = rule.kind === "ufw" ? "UFW 规则" : "iptables 规则";
-    const confirmed = await confirmDestructiveAction(`确定要删除 ${label} #${rule.value} 吗？此操作不可撤销。`);
+    const label = rule.kind === "ufw" ? "UFW rule" : "iptables rule";
+    const confirmed = await confirmDestructiveAction(`Delete ${label} #${rule.value}? This action cannot be undone.`);
     if (!confirmed)
         return;
 
     const result = rule.kind === "ufw"
-        ? await execute("firewall", "UFW 删除规则", [getToolCommand("ufw"), "--force", "delete", rule.value])
-        : await execute("firewall", "iptables 删除规则", [getToolCommand("iptables"), "-D", "INPUT", rule.value]);
+        ? await execute("firewall", "Delete UFW rule", [getToolCommand("ufw"), "--force", "delete", rule.value])
+        : await execute("firewall", "Delete iptables rule", [getToolCommand("iptables"), "-D", "INPUT", rule.value]);
 
     if (result.ok)
         await refreshFirewallStatus();
@@ -2860,7 +2860,7 @@ async function handleFirewallDialogSubmit() {
 
     if (state.firewallDialog.mode === "enable-ufw") {
         updateFirewallDialog({ busy: true, error: "" });
-        const result = await execute("firewall", "UFW 启用", [getToolCommand("ufw"), "--force", "enable"]);
+        const result = await execute("firewall", "Enable UFW", [getToolCommand("ufw"), "--force", "enable"]);
         if (!result.ok) {
             updateFirewallDialog({
                 busy: false,
@@ -2884,7 +2884,7 @@ async function handleFirewallDialogSubmit() {
     const source = getFormValue(form, "source");
 
     if (!port) {
-        updateFirewallDialog({ error: "端口不能为空。" });
+        updateFirewallDialog({ error: "Port cannot be empty." });
         const portInput = getElement("firewall-rule-port");
         if (portInput)
             portInput.setAttribute("aria-invalid", "true");
@@ -2906,7 +2906,7 @@ async function handleFirewallDialogSubmit() {
             return command;
         })();
 
-    const label = state.firewallBackend === "ufw" ? "UFW 添加规则" : "iptables 插入规则";
+    const label = state.firewallBackend === "ufw" ? "Add UFW rule" : "Insert iptables rule";
     updateFirewallDialog({ busy: true, error: "" });
     const result = await execute("firewall", label, args);
     if (!result.ok) {
@@ -2925,12 +2925,12 @@ async function handleFirewallDialogSubmit() {
 async function handleQuickAction(action) {
     const fail2banService = state.fail2banService || "fail2ban.service";
     const actions = {
-        "ufw-disable": () => execute("firewall", "UFW 禁用", [getToolCommand("ufw"), "disable"]),
-        "ufw-reload": () => execute("firewall", "UFW 重新加载", [getToolCommand("ufw"), "reload"]),
-        "fail2ban-start": () => execute("fail2ban", "启动 Fail2Ban", ["systemctl", "start", fail2banService]),
-        "fail2ban-stop": () => execute("fail2ban", "停止 Fail2Ban", ["systemctl", "stop", fail2banService]),
-        "fail2ban-restart": () => execute("fail2ban", "重启 Fail2Ban", ["systemctl", "restart", fail2banService]),
-        "fail2ban-reload": () => execute("fail2ban", "重新加载 Fail2Ban", [getToolCommand("fail2ban"), "reload"]),
+        "ufw-disable": () => execute("firewall", "Disable UFW", [getToolCommand("ufw"), "disable"]),
+        "ufw-reload": () => execute("firewall", "Reload UFW", [getToolCommand("ufw"), "reload"]),
+        "fail2ban-start": () => execute("fail2ban", "Start Fail2Ban", ["systemctl", "start", fail2banService]),
+        "fail2ban-stop": () => execute("fail2ban", "Stop Fail2Ban", ["systemctl", "stop", fail2banService]),
+        "fail2ban-restart": () => execute("fail2ban", "Restart Fail2Ban", ["systemctl", "restart", fail2banService]),
+        "fail2ban-reload": () => execute("fail2ban", "Reload Fail2Ban", [getToolCommand("fail2ban"), "reload"]),
     };
 
     const handler = actions[action];
@@ -2960,12 +2960,12 @@ async function handleFail2BanUnban(event) {
     const ip = getFormValue(form, "ip");
 
     if (!jail || !ip) {
-        showCommandResult("fail2ban", "解封失败", "jail 和 IP 都不能为空。", false);
+        showCommandResult("fail2ban", "Unban failed", "Jail and IP cannot be empty.", false);
         return;
     }
 
     fillJailInputs(jail);
-    await execute("fail2ban", "Fail2Ban 解封 IP", [getToolCommand("fail2ban"), "set", jail, "unbanip", ip]);
+    await execute("fail2ban", "Unban Fail2Ban IP", [getToolCommand("fail2ban"), "set", jail, "unbanip", ip]);
     form.reset();
     fillJailInputs(jail);
     await refreshFail2BanStatus();
@@ -3087,7 +3087,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     bindDarkMode();
     initSuperuser();
     renderSecurityLogSourceOptions();
-    clearFail2BanJail("可从 jail 列表快速打开，也可以手动输入名称查看。");
+    clearFail2BanJail("Open a jail from the list or enter a name manually.");
     switchFirewallBackend(state.firewallBackend, { refresh: false });
     renderFirewallDialog();
     renderInstallDialog();

@@ -6,7 +6,7 @@
   },
   "menu": {
     "index": {
-      "label": "安全",
+      "label": "Security",
       "path": "index.html",
       "order": 75,
       "keywords": [
@@ -17,8 +17,8 @@
             "ufw",
             "iptables",
             "fail2ban",
-            "安全",
-            "防火墙"
+            "Security",
+            "Firewall"
           ]
         }
       ]

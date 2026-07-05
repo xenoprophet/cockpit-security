@@ -8,9 +8,9 @@ This project follows the starter-kit layout, but keeps the repository root as th
 - the build output goes to `dist/`
 - the installed Cockpit package is the built `dist/` directory
 
-The current UI adds a new “安全” entry in Cockpit with two areas:
+The current UI adds a new "Security" entry in Cockpit with two areas:
 
-- 防火墙
+- Firewall
   - UFW
   - iptables
 - Fail2Ban
@@ -62,7 +62,7 @@ For development, you usually want to run the module straight out of the git tree
 make devel-install
 ```
 
-This links `dist/` into Cockpit’s local package directory. If you prefer to do it manually:
+This links `dist/` into Cockpit's local package directory. If you prefer to do it manually:
 
 ```sh
 mkdir -p ~/.local/share/cockpit
@@ -89,15 +89,15 @@ The repository is organized like this:
 
 ```text
 .
-├── src/
-│   ├── index.css
-│   ├── index.html
-│   ├── index.js
-│   └── manifest.json
-├── dist/
-├── build.js
-├── Makefile
-└── README.md
+|-- src/
+|   |-- index.css
+|   |-- index.html
+|   |-- index.js
+|   `-- manifest.json
+|-- dist/
+|-- build.js
+|-- Makefile
+`-- README.md
 ```
 
 # Current functionality

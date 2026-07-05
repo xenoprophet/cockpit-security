@@ -15,7 +15,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1\n"
 
 #: src/manifest.json:0 org.cockpit_project.cockpit_security.metainfo.xml:5
-msgid "安全"
+msgid "Security"
 msgstr "Sicherheit"
 
 #: org.cockpit_project.cockpit_security.metainfo.xml:6
